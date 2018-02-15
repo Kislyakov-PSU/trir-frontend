@@ -3,6 +3,9 @@
         <span class="author">
         <router-link :to="authorUrl">{{post.author.username}}</router-link></span>
         <div class="content">{{post.text}}</div>
+        <div class="admin-panel" v-if="isAdmin">
+            <button class="delete" @click="deletePost" v-t="'admin.delete'"></button>
+        </div>
     </div>
 </template>
 <script lang="ts">
@@ -15,6 +18,20 @@ export default class PostItem extends Vue {
     
     get authorUrl() {
         return `/users/${this.post.author.id}`
+    }
+    
+    deletePost() {
+        let del = confirm("Delete?")
+        if (del) {
+        }
+    }
+    
+    get isAdmin(): boolean {
+        let sessionItem = sessionStorage.getItem("user")
+        if (sessionItem === null) return false
+        let user = JSON.parse(sessionItem) || {group: null}
+        if (user.group === "admin") return true;
+        return false;
     }
 }
 </script>

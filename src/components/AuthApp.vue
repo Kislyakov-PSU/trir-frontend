@@ -1,8 +1,9 @@
-<template>
-    <main id="auth-app">
-        <input type="text" v-model="login" placeholder="Login...">
-        <input type="password" v-model="password" placeholder="Password..." @keyup.enter="process">
-    </main>
+<template lang="pug">
+    main#auth-app
+        input(type='text', v-model='login', :placeholder='$t("placeholders.auth.login")')
+        input(type='password', v-model='password', :placeholder='$t("placeholders.auth.password")')
+        button(@click='authorize') Authorize
+        button(@click='register') Register
 </template>
 
 <script lang="ts">
@@ -16,13 +17,13 @@ export default class AuthApp extends Vue {
     login: string = ""
     password: string = ""
     
-    mounted() {
+    created() {
         if (sessionStorage.getItem("jwt") !== null) {
             this.$router.push('topics')
         }
     }
     
-    process() {
+    authorize() {
         fetch("http://localhost:9000/auth", {
             method: "POST",
             body: `${this.login};${this.password}`
@@ -38,9 +39,42 @@ export default class AuthApp extends Vue {
             }
         })
     }
+    
+    register() {
+        fetch("http://localhost:9000/", {
+            method: "POST",
+            body: JSON.stringify({
+                query: `
+                    mutation($username: String!, $password: String!) {
+                        createUser(
+                            username: $username
+                            password: $password
+                            group: "user"
+                        ) {
+                            id
+                            username
+                            group
+                        }
+                    }`,
+                variables: {
+                    username: this.login,
+                    password: this.password
+                }
+            })
+        })
+        .then((res: any) => res.json())
+        .then((res: any) => {
+            if (res.errors) {
+                res.errors.map((err: any) => console.error(err.message))
+            } else {
+                this.authorize()
+            }
+        })
+    }
 }
 </script>
-<style lang="scss">
+
+<style lang="scss" scoped>
 input {
     display: block;
     background: transparent;

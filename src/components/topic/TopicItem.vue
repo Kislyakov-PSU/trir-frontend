@@ -1,42 +1,67 @@
-<template>
-    <div class="topic">
-        <h2 class="title">{{topic.title}}</h2>
-        <span class="author">by
-        <router-link :to="authorUrl">{{topic.author.username}}</router-link>
-        </span>
-        <div class="content">{{topic.text}}</div>
-        <router-link class="read-more" v-if="context !== 'topics/:id'" :to="topicUrl">
-            Read more...
-        </router-link>
-        <div class="posts" v-if="context === 'topics/:id'" v-for="(post, index) in this.topic.posts">
-            <post-item :post="post"></post-item>
-        </div>
-    </div>
+<template lang="pug">
+    transition(name='fade', mode='out-in')
+        div.topic(v-if='topicExists')
+            h2.title {{topic.title}}
+            span.author(v-t='"placeholders.by"')
+            router-link(:to='authorUrl') {{topic.author.username}}
+            div.content {{topic.text}}
+            router-link.read-more(v-if='context !== "topics/:id"', :to='topicUrl', v-t='"placeholders.readMore"')
+            div.posts(v-if='context === "topics/:id"', v-for='(post, index) in this.topic.posts')
+                post-item(:post='post')
+            create-post(:topicId='topic.id', v-if='context === "topics/:id"')
+            div.admin-panel(v-if='isAdmin')
+                button.delete(@click='deleteTopic', v-t='"admin.delete"')
+        div.topic(v-else)
+            h2.title(v-t='"topic.doesNotExist"')
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Topic, Post } from '../../models'
 import PostItem from './PostItem'
+import CreatePost from './CreatePost'
 
 @Component({
     components: {
         PostItem,
+        CreatePost,
     }
 })
 export default class TopicItem extends Vue {
-    @Prop() topic!: Topic
+    @Prop() loadedTopic!: Topic
     @Prop() context!: string
     
-    get topicUrl() {
+    topic: Topic = this.loadedTopic
+    
+    deleteTopic() {
+        let del = confirm("Delete?")
+        if (del) {
+        }
+    }
+    
+    get topicUrl(): string {
         return `/topics/${this.topic.id}`
     }
     
-    get authorUrl() {
+    get authorUrl(): string {
         return `/users/${this.topic.author.id}`
+    }
+    
+    get isAdmin(): boolean {
+        let sessionItem = sessionStorage.getItem("user")
+        if (sessionItem === null) return false
+        let user = JSON.parse(sessionItem) || {group: null}
+        if (user.group === "admin") return true
+        return false
+    }
+    
+    get topicExists(): boolean {
+        return !!this.topic.id
     }
 }
 </script>
-<style lang="scss">
+
+<style lang="scss" scoped>
 .topic {
     margin: 20px 0;
     
@@ -47,11 +72,11 @@ export default class TopicItem extends Vue {
     }
     
     .author {
-        color: #606060;
-        font-size: 0.9rem;
-        font-style: italic;
-        margin: 5px 0;
-        display: block;
+        &, & + a {
+            color: #606060;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
     }
     
     a {

@@ -1,66 +1,64 @@
 <template lang="pug">
-    main#user-app
+    main#topics-app
         div(v-if='!loaded', v-t='"placeholders.loading"')
-        div(v-else)
-            user-item(:user='user', :context='context')
+        div(v-for='(topic, index) of topics', v-else)
+            topic-item(:loadedTopic='topic', :context='context')
+        create-topic(v-if='isAdmin')
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { User } from '../models'
-import UserItem from './user/UserItem.vue'
+import { Topic } from '../models'
+import TopicItem from './topic/TopicItem'
+import CreateTopic from './topic/CreateTopic'
 
 @Component({
     components: {
-        UserItem,
+        TopicItem,
+        CreateTopic,
     }
 })
-export default class UserApp extends Vue {
+export default class TopicsApp extends Vue {
     @Prop() context!: string
     
     loading: boolean = false
-    user!: User
+    topics: Topic[] = []
     
     created() {
-        this.loadUser()
-    }
-    
-    get userId() {
-        return this.$route.params.id
+        this.loadPosts()
     }
     
     get loaded() {
         return !this.loading
     }
     
-    deleteUser() {
-        let del = confirm("Delete?")
-        if (del) {
-        }
+    get isAdmin() {
+        let user = JSON.parse(sessionStorage.getItem("user") || `{"group": null}`)
+        return user.group === "admin"
     }
     
     @Watch("$route")
-    loadUser() {
+    loadPosts() {
         this.loading = true
         fetch("http://localhost:9000", {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    query($id: Int!) {
-                        user(id: $id) {
+                query {
+                    topics {
+                        id
+                        author {
                             id
                             username
-                            group
                         }
-                    }`,
-                variables: {
-                    id: this.userId,
-                }
+                        title
+                    }
+                }`
             })
         })
         .then((res: any) => res.json())
         .then((json: any) => {
-            this.user = json.data.user
+            this.topics = json.data.topics
             this.loading = false
         })
     }
