@@ -16,7 +16,7 @@ export default class CreateTopic extends Vue {
         text: "",
     }
     
-    get authorId() {
+    get userId() {
         let user = JSON.parse(sessionStorage.getItem("user")!)
         return user.id
     }
@@ -26,29 +26,23 @@ export default class CreateTopic extends Vue {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    mutation(
-                        $title: String!
-                        $text: String!
-                        $author: Int!
-                    ) {
-                        createTopic(
-                            title: $title
-                            text: $text
-                            authorId: $author
-                        ) {
+                    mutation($input: TopicInput!) {
+                        createTopic(topic: $input) {
                             id
                             title
                             text
-                            author {
+                            user {
                                 id
                                 username
                             }
                         }
                     }`,
                 variables: {
-                    title: this.state.title,
-                    text: this.state.text,
-                    author: this.authorId
+                    input: {
+                        title: this.state.title,
+                        text: this.state.text,
+                        userID: "" + this.userId,
+                    },
             }}),
             headers: {
                 "Authorization": sessionStorage.getItem("jwt")!

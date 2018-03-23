@@ -45,20 +45,18 @@ export default class AuthApp extends Vue {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    mutation($username: String!, $password: String!) {
-                        createUser(
-                            username: $username
-                            password: $password
-                            group: "user"
-                        ) {
+                    mutation($input: UserInput!) {
+                        createUser(user: $input) {
                             id
                             username
                             group
                         }
                     }`,
                 variables: {
-                    username: this.login,
-                    password: this.password
+                    input: {
+                        username: this.login,
+                        password: this.password
+                    }
                 }
             })
         })

@@ -47,7 +47,7 @@ export default class TopicsApp extends Vue {
                 query {
                     topics {
                         id
-                        author {
+                        user {
                             id
                             username
                         }
@@ -58,6 +58,7 @@ export default class TopicsApp extends Vue {
         })
         .then((res: any) => res.json())
         .then((json: any) => {
+            console.log(json)
             this.topics = json.data.topics
             this.loading = false
         })

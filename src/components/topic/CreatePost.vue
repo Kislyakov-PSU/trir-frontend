@@ -15,7 +15,7 @@ export default class CreatePost extends Vue {
         text: "",
     }
     
-    get authorId() {
+    get userId() {
         let user = JSON.parse(sessionStorage.getItem("user")!)
         return user.id
     }
@@ -25,28 +25,22 @@ export default class CreatePost extends Vue {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    mutation(
-                        $text: String!
-                        $author: Int!
-                        $topic: Int!
-                    ) {
-                        createPost(
-                            text: $text
-                            authorId: $author
-                            topicId: $topic
-                        ) {
+                    mutation($input: PostInput!) {
+                        createPost(post: $input) {
                             id
                             text
-                            author {
+                            user {
                                 id
                                 username
                             }
                         }
                     }`,
                 variables: {
-                    text: this.state.text,
-                    author: this.authorId,
-                    topic: this.topicId,
+                    input: {
+                        text: this.state.text,
+                        userID: "" + this.userId,
+                        topicID: "" + this.topicId,
+                    }
                 }
             }),
             headers: {

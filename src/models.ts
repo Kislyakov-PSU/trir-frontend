@@ -8,7 +8,7 @@ export interface User {
 
 export interface Topic {
     id: number
-    author: User
+    user: User
     title: string
     text: string
     posts: Post[]
@@ -16,7 +16,7 @@ export interface Topic {
 
 export interface Post {
     id: number
-    author: User
+    user: User
     text: string
 }
 

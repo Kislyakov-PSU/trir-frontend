@@ -1,7 +1,7 @@
 <template>
     <div class="post">
         <span class="author">
-        <router-link :to="authorUrl">{{post.author.username}}</router-link></span>
+        <router-link :to="authorUrl">{{post.user.username}}</router-link></span>
         <div class="content">{{post.text}}</div>
         <div class="admin-panel" v-if="isAdmin">
             <button class="delete" @click="deletePost" v-t="'admin.delete'"></button>
@@ -17,7 +17,7 @@ export default class PostItem extends Vue {
     @Prop() post!: Post
     
     get authorUrl() {
-        return `/users/${this.post.author.id}`
+        return `/users/${this.post.user.id}`
     }
     
     deletePost() {

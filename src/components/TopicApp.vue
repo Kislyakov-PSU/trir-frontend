@@ -40,17 +40,17 @@ export default class TopicApp extends Vue {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    query ($id: Int!) {
+                    query ($id: ID!) {
                         topic(id: $id) {
                             id
-                            author {
+                            user {
                                 id
                                 username
                             }
                             posts {
                                 id
                                 text
-                                author {
+                                user {
                                     id
                                     username
                                 }

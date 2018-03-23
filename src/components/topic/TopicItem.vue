@@ -3,12 +3,12 @@
         div.topic(v-if='topicExists')
             h2.title {{topic.title}}
             span.author(v-t='"placeholders.by"')
-            router-link(:to='authorUrl') {{topic.author.username}}
+            router-link(:to='userUrl') {{topic.user.username}}
             div.content {{topic.text}}
             router-link.read-more(v-if='context !== "topics/:id"', :to='topicUrl', v-t='"placeholders.readMore"')
             div.posts(v-if='context === "topics/:id"', v-for='(post, index) in this.topic.posts')
                 post-item(:post='post')
-            create-post(:topicId='topic.id', v-if='context === "topics/:id"')
+            create-post(:topicId='topic.id', v-if='context === "topics/:id" && authorized')
             div.admin-panel(v-if='isAdmin')
                 button.delete(@click='deleteTopic', v-t='"admin.delete"')
         div.topic(v-else)
@@ -43,8 +43,12 @@ export default class TopicItem extends Vue {
         return `/topics/${this.topic.id}`
     }
     
-    get authorUrl(): string {
-        return `/users/${this.topic.author.id}`
+    get userUrl(): string {
+        return `/users/${this.topic.user.id}`
+    }
+    
+    get authorized(): boolean {
+        return sessionStorage.getItem("user") !== null
     }
     
     get isAdmin(): boolean {

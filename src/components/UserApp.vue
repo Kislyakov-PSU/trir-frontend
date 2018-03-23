@@ -46,7 +46,7 @@ export default class UserApp extends Vue {
             method: "POST",
             body: JSON.stringify({
                 query: `
-                    query($id: Int!) {
+                    query($id: ID!) {
                         user(id: $id) {
                             id
                             username
